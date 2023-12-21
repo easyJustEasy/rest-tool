@@ -1,10 +1,11 @@
-package com.zhaopin.cpms.idea.plugins.toolWindow.bottomPanel
+package org.smartdot.idea.plugins.toolWindow.bottomPanel
 
 import cn.hutool.json.JSONObject
 import cn.hutool.json.JSONUtil
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
+import org.apache.commons.lang3.StringUtils
 import java.awt.Dimension
 import java.awt.FlowLayout
 import javax.swing.JTextArea
@@ -13,6 +14,7 @@ import javax.swing.JTextArea
 class BottomPanel() : JBPanel<JBPanel<*>>() {
     private var bodyTxt: JTextArea
     private var responseTxt: JTextArea
+    private var cookieTxt: JTextArea
     private var headersTxt: JTextArea
     private var bottomPanel: JBTabbedPane = JBTabbedPane()
 
@@ -29,12 +31,21 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
         val headerPanel: JBScrollPane = JBScrollPane(headersTxt)
         headersTxt.text = ""
         setPanel(headerPanel)
-        bottomPanel.addTab("head", headerPanel)
+        bottomPanel.addTab("header", headerPanel)
+
+        cookieTxt = JTextArea()
+        val cookiePanel: JBScrollPane = JBScrollPane(cookieTxt)
+        cookieTxt.text = ""
+        setPanel(cookiePanel)
+        bottomPanel.addTab("cookie", cookiePanel)
+
         responseTxt = JTextArea()
         val responsePanel: JBScrollPane = JBScrollPane(responseTxt)
         responseTxt.text = ""
         setPanel(responsePanel)
         bottomPanel.addTab("response", responsePanel)
+
+
 
         add(bottomPanel)
     }
@@ -46,16 +57,46 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
     }
 
     fun getBody(): String {
-        return bodyTxt.text;
+        val txt = bodyTxt.text
+        if (JSONUtil.isTypeJSON(txt)) {
+            return txt
+        }
+        if (StringUtils.isBlank(txt)) {
+            return StringUtils.EMPTY
+        }
+        throw RuntimeException("body 不是一个json")
     }
 
+
+
+    fun getHeaders(): String {
+        val txt = headersTxt.text
+        if (StringUtils.isBlank(txt)) {
+            return StringUtils.EMPTY
+        }
+        if (JSONUtil.isTypeJSON(txt)) {
+            return txt
+        }
+        throw RuntimeException("header 不是一个json")
+    }
+
+    fun getCookies(): String {
+        val txt = cookieTxt.text
+        if (StringUtils.isBlank(txt)) {
+            return StringUtils.EMPTY
+        }
+        if (JSONUtil.isTypeJSON(txt)) {
+            return txt
+        }
+        throw RuntimeException("cookie 不是一个json")
+    }
     fun getResponse(): String {
         return responseTxt.text;
     }
 
     fun setResponse(txt: String) {
         responseTxt.text = formatJson(txt);
-        bottomPanel.setSelectedComponent(bottomPanel.getComponentAt(2))
+        bottomPanel.setSelectedComponent(bottomPanel.getComponentAt(3))
     }
 
     private fun formatJson(txt: String): String? {
@@ -63,9 +104,5 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
             return JSONUtil.toJsonPrettyStr(txt)
         }
         return txt
-    }
-
-    fun getHeaders(): String {
-        return headersTxt.text;
     }
 }

@@ -1,4 +1,4 @@
-package com.zhaopin.cpms.idea.plugins
+package org.smartdot.idea.plugins
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls

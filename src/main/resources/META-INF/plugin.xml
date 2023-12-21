@@ -9,10 +9,10 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.zhaopin.cpms.idea.plugins.toolWindow.ToolWindowFactory" id="CpmsTools"/>
+        <toolWindow factoryClass="org.smartdot.idea.plugins.toolWindow.ToolWindowFactory" id="RestTool"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.zhaopin.cpms.idea.plugins.listeners.ApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="org.smartdot.idea.plugins.listeners.ApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 </idea-plugin>

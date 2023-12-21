@@ -1,8 +1,8 @@
-package com.zhaopin.cpms.idea.plugins.toolWindow.topPanel
+package org.smartdot.idea.plugins.toolWindow.topPanel
 
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBPanel
-import com.zhaopin.cpms.idea.plugins.Bundle
+import org.smartdot.idea.plugins.Bundle
 import java.awt.FlowLayout
 import java.awt.event.ActionListener
 import javax.swing.JButton

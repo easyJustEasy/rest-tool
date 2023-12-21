@@ -1,4 +1,4 @@
-package com.zhaopin.cpms.idea.plugins.listeners
+package org.smartdot.idea.plugins.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger
