@@ -6,6 +6,7 @@ import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
 import org.apache.commons.lang3.StringUtils
+import org.smartdot.idea.plugins.consts.ProjectConsts
 import java.awt.Dimension
 import java.awt.FlowLayout
 import javax.swing.JTextArea
@@ -51,7 +52,7 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
     }
 
     fun setPanel(panel: JBScrollPane) {
-        panel.setPreferredSize(Dimension(800, 600))
+        panel.setPreferredSize(Dimension(ProjectConsts.w, ProjectConsts.h))
         panel.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         panel.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     }
