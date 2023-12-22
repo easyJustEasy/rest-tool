@@ -40,4 +40,8 @@ class TopPanel() : JBPanel<JBPanel<*>>() {
     fun addSendAction(l: ActionListener) {
         sendBtn.addActionListener(l)
     }
+
+    fun setUrl(s: String) {
+        urlInput.text = s
+    }
 }

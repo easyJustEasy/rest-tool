@@ -1,33 +1,31 @@
 package org.smartdot.idea.plugins.toolWindow.ctrlPanel
 
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.ui.*
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.util.ui.JBUI
+import org.bouncycastle.asn1.x500.style.RFC4519Style.o
 import org.smartdot.idea.plugins.bo.ApiBO
-import org.smartdot.idea.plugins.consts.ProjectConsts
 import java.awt.BorderLayout
-import java.awt.Dimension
 import java.awt.event.ActionListener
-import javax.swing.DefaultListModel
-import javax.swing.JButton
-import javax.swing.JPanel
-import javax.swing.ListSelectionModel
-import javax.swing.border.LineBorder
+import javax.swing.*
+import javax.swing.event.ListSelectionListener
 
 
 class CtrlPanel() : JBPanel<JBPanel<*>>() {
-    private var list: JBList<Any?>
-    private val defaultListModel = DefaultListModel<Any>();
+    private var list: JBList<ApiBO?>
+    private val defaultListModel = DefaultListModel<ApiBO>();
     private val btn: JButton = JButton("刷新")
 
     init {
-        list = JBList<Any?>(defaultListModel)
+        list = JBList<ApiBO?>(defaultListModel)
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        list.
+        list.installCellRenderer {
+            val label = it?.let { it1 -> JBLabel(it1.url) }
+            label!!
+        }
 //        ListSpeedSearch<Any>(list)
         val panel = JPanel()
         panel.setLayout(BorderLayout())
@@ -35,13 +33,13 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
         panel.add(btn, BorderLayout.SOUTH)
         setLayout(BorderLayout())
 
-        add(panel,BorderLayout.CENTER)
+        add(panel, BorderLayout.CENTER)
 
     }
 
     fun addElement(s: Collection<ApiBO>) {
         s.forEach {
-            defaultListModel.addElement(it.url)
+            defaultListModel.addElement(it)
         }
 
     }
@@ -55,4 +53,11 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
         btn.addActionListener(l)
     }
 
+    fun select(l: ListSelectionListener) {
+        list.addListSelectionListener(l)
+    }
+
+    fun getSelectValue(): ApiBO {
+        return list.selectedValue!!
+    }
 }

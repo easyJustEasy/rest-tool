@@ -59,6 +59,11 @@ class ToolWindowFactory : ToolWindowFactory {
                 ctrlPanel.remove()
                 val ds = apiService.doScan("E:\\work\\project\\java-it-cpms-p-project")
                 ctrlPanel.addElement(ds)
+            }
+            ctrlPanel.select{
+                println(ctrlPanel.getSelectValue())
+                val url = ctrlPanel.getSelectValue().url
+                topPanel.setUrl("http://"+apiService.wrapUrl("localhost:8080/"+url))
 
             }
             setBorder(LineBorder(JBColor.RED));
