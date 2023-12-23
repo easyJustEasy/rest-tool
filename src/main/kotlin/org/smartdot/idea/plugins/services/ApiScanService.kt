@@ -152,16 +152,17 @@ class ApiScanService() {
             ))
         }.forEach {
             val pv = map.get(it.type.fullyQualifiedName)
-            var v = it.type.value.toString()
             if (pv != null) {
-                v = parseObjJson(pv, map)
+                json.set(it.name, parseObjJson(pv, map))
+            } else {
+                json.set(it.name, it.type.value.toString())
             }
-            json.set(it.name, v)
+
         }
         return json
     }
 
-    private fun parseObjJson(pv: JavaClass, map: HashMap<String, JavaClass>): String {
+    private fun parseObjJson(pv: JavaClass, map: HashMap<String, JavaClass>): JSONObject {
         val v = JSONObject()
         val fs = pv.fields
         fs.forEach {
@@ -172,7 +173,7 @@ class ApiScanService() {
                 v.set(it.name, it.type.value.toString())
             }
         }
-        return v.toJSONString(0)
+        return v
     }
 
     fun wrapUrl(url: String): String {
