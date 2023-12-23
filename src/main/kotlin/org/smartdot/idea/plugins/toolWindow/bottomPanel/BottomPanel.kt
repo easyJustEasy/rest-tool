@@ -24,24 +24,34 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
         layout.alignment = FlowLayout.LEFT
         setLayout(layout)
         bodyTxt = JTextArea()
-        val bodyPanel: JBScrollPane = JBScrollPane(bodyTxt)
+        bodyTxt.setLineWrap(true);
+        bodyTxt.setWrapStyleWord(true);
+        val bodyPanel = JBScrollPane(bodyTxt)
         bodyTxt.text = ""
         setPanel(bodyPanel)
         bottomPanel.addTab("body", bodyPanel)
+
+
         headersTxt = JTextArea()
-        val headerPanel: JBScrollPane = JBScrollPane(headersTxt)
+        headersTxt.setLineWrap(true);
+        headersTxt.setWrapStyleWord(true);
+        val headerPanel = JBScrollPane(headersTxt)
         headersTxt.text = ""
         setPanel(headerPanel)
         bottomPanel.addTab("header", headerPanel)
 
         cookieTxt = JTextArea()
-        val cookiePanel: JBScrollPane = JBScrollPane(cookieTxt)
+        cookieTxt.setLineWrap(true);
+        cookieTxt.setWrapStyleWord(true);
+        val cookiePanel = JBScrollPane(cookieTxt)
         cookieTxt.text = ""
         setPanel(cookiePanel)
         bottomPanel.addTab("cookie", cookiePanel)
 
         responseTxt = JTextArea()
-        val responsePanel: JBScrollPane = JBScrollPane(responseTxt)
+        responseTxt.setLineWrap(true);
+        responseTxt.setWrapStyleWord(true);
+        val responsePanel = JBScrollPane(responseTxt)
         responseTxt.text = ""
         setPanel(responsePanel)
         bottomPanel.addTab("response", responsePanel)
@@ -105,5 +115,9 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
             return JSONUtil.toJsonPrettyStr(txt)
         }
         return txt
+    }
+
+    fun setBody(param: JSONObject) {
+        bodyTxt.text=param.toStringPretty()
     }
 }

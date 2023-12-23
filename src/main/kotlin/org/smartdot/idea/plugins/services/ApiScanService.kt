@@ -1,6 +1,7 @@
 package org.smartdot.idea.plugins.services
 
 import cn.hutool.core.collection.CollectionUtil
+import cn.hutool.core.math.BitStatusUtil.has
 import cn.hutool.json.JSONObject
 import com.intellij.openapi.components.Service
 import com.thoughtworks.qdox.JavaProjectBuilder
@@ -37,13 +38,8 @@ class ApiScanService() {
     private fun findAllCtrls(cls: Collection<JavaClass>): Collection<JavaClass> {
         val list = ArrayList<JavaClass>()
         cls.forEach {
-            val ans = it.annotations
-            val mt = it
-            ans.forEach {
-                val name = it.type.fullyQualifiedName
-                if (name.equals("org.springframework.web.bind.annotation.RestController") || name.equals("org.springframework.web.bind.annotation.Controller")) {
-                    list.add(mt)
-                }
+            if (hasSomeAnnotation(it, "RestController") != null || hasSomeAnnotation(it, "Controller") != null) {
+                list.add(it)
             }
         }
         return list
@@ -52,16 +48,21 @@ class ApiScanService() {
     private fun initApis(cls: Collection<JavaClass>, map: HashMap<String, JavaClass>): Collection<ApiBO> {
         val list = ArrayList<ApiBO>()
         cls.forEach {
-            val an = it.annotations.filter {
-                it.type.fullyQualifiedName.equals("org.springframework.web.bind.annotation.RequestMapping")
-            }
-            if (CollectionUtil.isNotEmpty(an)) {
-                var url = annotationValueToString(an.get(0).getProperty("value"))
+            val an = hasSomeAnnotation(it, "RequestMapping")
+            val isRest = hasSomeAnnotation(it, "RestController")
+            if (an != null) {
+                var url = annotationValueToString(an.getProperty("value"))
                 val methods = it.methods
                 if (CollectionUtil.isNotEmpty(methods)) {
                     methods.forEach {
                         if (isPostRequestMapping(it) || isGetRequestMapping(it) || isRequestMapping(it)) {
-                            list.add(ApiBO(wrapUrl(parseHttpUrl(url, it)), parseHttpParams(it, map), parseHttpMethod(it, map)))
+                            list.add(
+                                ApiBO(
+                                    wrapUrl(parseHttpUrl(url, it)),
+                                    parseHttpParams(it, map),
+                                    parseHttpMethod(it, isRest, map)
+                                )
+                            )
                         }
                     }
                 }
@@ -91,10 +92,10 @@ class ApiScanService() {
         }
     }
 
-    private fun parseHttpMethod(it: JavaMethod, map: HashMap<String, JavaClass>): String {
+    private fun parseHttpMethod(it: JavaMethod, body: JavaAnnotation?, map: HashMap<String, JavaClass>): String {
         if (isGetRequestMapping(it)) {
             return Bundle.message("methodGet")
-        } else if (isPostRequestMapping(it) && hasPostBody(it)) {
+        } else if (isPostRequestMapping(it) && hasPostBody(it, body)) {
             return Bundle.message("methodPostJson")
         } else {
             return Bundle.message("methodPostForm")
@@ -117,6 +118,18 @@ class ApiScanService() {
         return null
     }
 
+    private fun hasSomeAnnotation(it: JavaClass, mapping: String): JavaAnnotation? {
+        val annotation =
+            it.annotations.filter {
+                val fullName = it.type.fullyQualifiedName
+                ("org.springframework.web.bind.annotation." + mapping).equals(fullName)
+            }
+        if (CollectionUtil.isNotEmpty(annotation)) {
+            return annotation.get(0)
+        }
+        return null
+    }
+
     private fun isRequestMapping(it: JavaMethod): Boolean {
         return hasSomeMapping(it, "RequestMapping") != null
     }
@@ -126,8 +139,8 @@ class ApiScanService() {
     }
 
 
-    private fun hasPostBody(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, "RequestBody") != null
+    private fun hasPostBody(it: JavaMethod, rest: JavaAnnotation?): Boolean {
+        return rest != null || hasSomeMapping(it, "RequestBody") != null
     }
 
     private fun parseHttpParams(it: JavaMethod, map: HashMap<String, JavaClass>): JSONObject {

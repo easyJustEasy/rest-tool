@@ -36,10 +36,11 @@ class ToolWindowFactory : ToolWindowFactory {
         private val service = toolWindow.project.service<ProjectService>()
         private val apiService = toolWindow.project.service<ApiScanService>()
         fun getContent() = JBPanel<JBPanel<*>>().apply {
-            val ctrlPanel: CtrlPanel = CtrlPanel()
-            val topPanel: TopPanel = TopPanel()
-            val bottomPanel: BottomPanel = BottomPanel()
-            val doScan = apiService.doScan("E:\\work\\project\\java-it-cpms-p-project")
+            val ctrlPanel = CtrlPanel()
+            val topPanel = TopPanel()
+            val bottomPanel = BottomPanel()
+            val dir = "E:\\work\\zhaopin\\zpms\\java-zpms-currency-task"
+            val doScan = apiService.doScan(dir)
             topPanel.addSendAction {
                 try {
                     val urlMethod = topPanel.getUrlMethod()
@@ -57,13 +58,16 @@ class ToolWindowFactory : ToolWindowFactory {
             ctrlPanel.reload {
                 println("reloading ")
                 ctrlPanel.remove()
-                val ds = apiService.doScan("E:\\work\\project\\java-it-cpms-p-project")
+                val ds = apiService.doScan(dir)
                 ctrlPanel.addElement(ds)
             }
             ctrlPanel.select{
                 println(ctrlPanel.getSelectValue())
-                val url = ctrlPanel.getSelectValue().url
+                val select = ctrlPanel.getSelectValue()
+                val url = select.url
                 topPanel.setUrl("http://"+apiService.wrapUrl("localhost:8080/"+url))
+                topPanel.setMethod(select.method)
+                bottomPanel.setBody(select.param)
 
             }
             setBorder(LineBorder(JBColor.RED));

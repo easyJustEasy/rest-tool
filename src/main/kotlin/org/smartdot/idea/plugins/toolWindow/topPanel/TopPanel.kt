@@ -44,4 +44,9 @@ class TopPanel() : JBPanel<JBPanel<*>>() {
     fun setUrl(s: String) {
         urlInput.text = s
     }
+
+    fun setMethod(method: String) {
+        select.selectedItem=method
+
+    }
 }
