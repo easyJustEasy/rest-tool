@@ -60,7 +60,7 @@ class ApiScanService() {
                 val methods = it.methods
                 if (CollectionUtil.isNotEmpty(methods)) {
                     methods.forEach {
-                        if (isPostRequestMapping(it) && isGetRequestMapping(it) && isRequestMapping(it)) {
+                        if (isPostRequestMapping(it) || isGetRequestMapping(it) || isRequestMapping(it)) {
                             list.add(ApiBO(wrapUrl(parseHttpUrl(url, it)), parseHttpParams(it, map), parseHttpMethod(it, map)))
                         }
                     }
