@@ -35,12 +35,14 @@ class ToolWindowFactory : ToolWindowFactory {
     class MyToolWindow(toolWindow: ToolWindow) {
         private val service = toolWindow.project.service<ProjectService>()
         private val apiService = toolWindow.project.service<ApiScanService>()
+       private val dir = toolWindow.project.basePath
+
         fun getContent() = JBPanel<JBPanel<*>>().apply {
             val ctrlPanel = CtrlPanel()
             val topPanel = TopPanel()
             val bottomPanel = BottomPanel()
-            val dir = "E:\\work\\zhaopin\\zpms\\java-zpms-currency-task"
-            val doScan = apiService.doScan(dir)
+            println("dir is :"+dir)
+            val doScan = dir?.let { apiService.doScan(it) }
             topPanel.addSendAction {
                 try {
                     val urlMethod = topPanel.getUrlMethod()
@@ -54,12 +56,16 @@ class ToolWindowFactory : ToolWindowFactory {
                     bottomPanel.setResponse(ExceptionUtil.getMessage(e))
                 }
             }
-            ctrlPanel.addElement(doScan)
+            if (doScan != null) {
+                ctrlPanel.addElement(doScan)
+            }
             ctrlPanel.reload {
                 println("reloading ")
                 ctrlPanel.remove()
-                val ds = apiService.doScan(dir)
-                ctrlPanel.addElement(ds)
+                val ds = dir?.let { it1 -> apiService.doScan(it1) }
+                if (ds != null) {
+                    ctrlPanel.addElement(ds)
+                }
             }
             ctrlPanel.select{
                 println(ctrlPanel.getSelectValue())
