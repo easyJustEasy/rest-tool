@@ -40,8 +40,8 @@ class ToolWindowFactory : ToolWindowFactory {
             topPanel.setCtrlPanel(ctrlPanel)
 
             val split = JSplitPane(JSplitPane.VERTICAL_SPLIT)
-            split.setDividerSize(0); // 设置分割线宽度
-            split.setDividerLocation(500); // 设置分割线位置
+            split.setDividerSize(0) // 设置分割线宽度
+            split.setDividerLocation(500) // 设置分割线位置
 
 
             split.add(ctrlPanel)

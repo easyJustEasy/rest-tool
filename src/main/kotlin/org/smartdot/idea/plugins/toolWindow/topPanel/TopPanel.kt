@@ -7,17 +7,15 @@ import com.intellij.ui.components.JBPanel
 import org.smartdot.idea.plugins.Bundle
 import org.smartdot.idea.plugins.bo.ApiBO
 import org.smartdot.idea.plugins.bo.RequestBO
-import org.smartdot.idea.plugins.services.ApiScanService
 import org.smartdot.idea.plugins.services.ProjectService
 import org.smartdot.idea.plugins.toolWindow.bottomPanel.BottomPanel
 import org.smartdot.idea.plugins.toolWindow.ctrlPanel.CtrlPanel
 import java.awt.FlowLayout
-import java.awt.event.ActionListener
 import javax.swing.JButton
 import javax.swing.JTextField
 
 
-class TopPanel() : JBPanel<JBPanel<*>>() {
+class TopPanel : JBPanel<JBPanel<*>>() {
     private lateinit var select: ComboBox<String>
     private lateinit var urlInput: JTextField
     private lateinit var sendBtn: JButton
@@ -42,19 +40,19 @@ class TopPanel() : JBPanel<JBPanel<*>>() {
         add(sendBtn)
     }
 
-    fun getUrl(): String {
-        return urlInput.text;
+    private fun getUrl(): String {
+        return urlInput.text
     }
 
-    fun getUrlMethod(): String {
-        return select.selectedItem?.toString() ?: "";
+    private fun getUrlMethod(): String {
+        return select.selectedItem?.toString() ?: ""
     }
 
     fun setCtrlPanel(ct: CtrlPanel) {
         ctrlPanel = ct
     }
 
-    fun addSendAction() {
+    private fun addSendAction() {
         sendBtn.addActionListener {
             val urlMethod = getUrlMethod()
             val url = getUrl()

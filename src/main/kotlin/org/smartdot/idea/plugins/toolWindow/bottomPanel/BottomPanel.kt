@@ -12,7 +12,7 @@ import java.awt.FlowLayout
 import javax.swing.JTextArea
 
 
-class BottomPanel() : JBPanel<JBPanel<*>>() {
+class BottomPanel : JBPanel<JBPanel<*>>() {
     private var bodyTxt: JTextArea
     private var responseTxt: JTextArea
     private var cookieTxt: JTextArea
@@ -24,8 +24,8 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
         layout.alignment = FlowLayout.LEFT
         setLayout(layout)
         bodyTxt = JTextArea()
-        bodyTxt.setLineWrap(true);
-        bodyTxt.setWrapStyleWord(true);
+        bodyTxt.setLineWrap(true)
+        bodyTxt.setWrapStyleWord(true)
         val bodyPanel = JBScrollPane(bodyTxt)
         bodyTxt.text = ""
         setPanel(bodyPanel)
@@ -33,24 +33,24 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
 
 
         headersTxt = JTextArea()
-        headersTxt.setLineWrap(true);
-        headersTxt.setWrapStyleWord(true);
+        headersTxt.setLineWrap(true)
+        headersTxt.setWrapStyleWord(true)
         val headerPanel = JBScrollPane(headersTxt)
         headersTxt.text = ""
         setPanel(headerPanel)
         bottomPanel.addTab("header", headerPanel)
 
         cookieTxt = JTextArea()
-        cookieTxt.setLineWrap(true);
-        cookieTxt.setWrapStyleWord(true);
+        cookieTxt.setLineWrap(true)
+        cookieTxt.setWrapStyleWord(true)
         val cookiePanel = JBScrollPane(cookieTxt)
         cookieTxt.text = ""
         setPanel(cookiePanel)
         bottomPanel.addTab("cookie", cookiePanel)
 
         responseTxt = JTextArea()
-        responseTxt.setLineWrap(true);
-        responseTxt.setWrapStyleWord(true);
+        responseTxt.setLineWrap(true)
+        responseTxt.setWrapStyleWord(true)
         val responsePanel = JBScrollPane(responseTxt)
         responseTxt.text = ""
         setPanel(responsePanel)
@@ -61,10 +61,10 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
         add(bottomPanel)
     }
 
-    fun setPanel(panel: JBScrollPane) {
-        panel.setPreferredSize(Dimension(ProjectConsts.w, ProjectConsts.h))
-        panel.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        panel.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    private fun setPanel(panel: JBScrollPane) {
+        panel.preferredSize = Dimension(ProjectConsts.w, ProjectConsts.h)
+        panel.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+        panel.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED)
     }
 
     fun getBody(): String {
@@ -101,12 +101,8 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
         throw RuntimeException("cookie 不是一个json")
     }
 
-    fun getResponse(): String {
-        return responseTxt.text;
-    }
-
     fun setResponse(txt: String) {
-        responseTxt.text = formatJson(txt);
+        responseTxt.text = formatJson(txt)
         bottomPanel.setSelectedComponent(bottomPanel.getComponentAt(3))
     }
 

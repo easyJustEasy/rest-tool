@@ -16,15 +16,15 @@ import java.awt.event.*
 import javax.swing.*
 
 
-class CtrlPanel() : JBPanel<JBPanel<*>>() {
+class CtrlPanel : JBPanel<JBPanel<*>>() {
     private lateinit var list: JBList<ApiBO?>
-    private val defaultListModel = DefaultListModel<ApiBO>();
+    private val defaultListModel = DefaultListModel<ApiBO>()
     private val reloadBtn: JButton = JButton("", AllIcons.Actions.Refresh)
     private val configBtn: JButton = JButton("", AllIcons.Actions.InlayGear)
     private val searchBtn: JButton = JButton("", AllIcons.Actions.Search)
     private val port: JBTextField = JBTextField()
     private val search: JBTextField = JBTextField()
-    private val allApis: HashSet<ApiBO> = HashSet<ApiBO>()
+    private val allApis: HashSet<ApiBO> = HashSet()
     private var isTipped: Boolean = false
     private lateinit var dir: String
     private lateinit var apiService: ApiScanService
@@ -37,8 +37,8 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
         topPanel = top
         bottomPanel = bottom
         apiService = service
-        list = JBList<ApiBO?>(defaultListModel)
-        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        list = JBList(defaultListModel)
+        list.selectionMode = ListSelectionModel.SINGLE_SELECTION
         list.installCellRenderer {
             val label = it?.let { it1 -> JBLabel(it1.url) }
             label!!
@@ -106,18 +106,16 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
         return panel
     }
 
-    fun addElement(s: Collection<ApiBO>) {
+    private fun addElement(s: Collection<ApiBO>) {
         s.sortedBy { e->e.url }.forEach {
             defaultListModel.addElement(it)
         }
     }
 
-    fun initApis() {
-        val doScan = dir?.let { apiService.doScan(it) }
-        if (doScan != null) {
-            allApis.addAll(doScan)
-            addElement(doScan)
-        }
+    private fun initApis() {
+        val doScan = dir.let { apiService.doScan(it) }
+        allApis.addAll(doScan)
+        addElement(doScan)
         reload()
         select()
         doSearch()
@@ -141,7 +139,7 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
             if (select != null && org.apache.commons.lang3.StringUtils.isNotBlank(select.url)) {
                 val url = select.url
                 val port = getPort()
-                topPanel.setUrl("http://" + apiService.wrapUrl("localhost:" + port + "/" + url))
+                topPanel.setUrl("http://" + apiService.wrapUrl("localhost:$port/$url"))
                 topPanel.setMethod(select.method)
                 bottomPanel.setBody(select.param)
             }
@@ -150,7 +148,7 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
 
     private fun getSelectValue(): ApiBO? {
         if (list.selectedValue == null) {
-            return null;
+            return null
         }
         return list.selectedValue!!
     }
@@ -196,8 +194,11 @@ class CtrlPanel() : JBPanel<JBPanel<*>>() {
                 element.param=apiBO.param
             }
         }
-        remove()
-        addElement(allApis)
+        for (element in defaultListModel.elements()) {
+            if (StringUtils.contains(apiBO.url,element.url)&&StringUtils.equals(element.method,apiBO.method)) {
+                element.param=apiBO.param
+            }
+        }
     }
 }
 
