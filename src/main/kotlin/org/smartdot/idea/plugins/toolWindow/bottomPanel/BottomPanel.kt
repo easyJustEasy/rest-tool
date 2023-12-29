@@ -79,7 +79,6 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
     }
 
 
-
     fun getHeaders(): String {
         val txt = headersTxt.text
         if (StringUtils.isBlank(txt)) {
@@ -101,6 +100,7 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
         }
         throw RuntimeException("cookie 不是一个json")
     }
+
     fun getResponse(): String {
         return responseTxt.text;
     }
@@ -118,6 +118,6 @@ class BottomPanel() : JBPanel<JBPanel<*>>() {
     }
 
     fun setBody(param: JSONObject) {
-        bodyTxt.text=param.toStringPretty()
+        bodyTxt.text = param.toStringPretty()
     }
 }

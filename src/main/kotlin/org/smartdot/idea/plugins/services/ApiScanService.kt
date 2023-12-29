@@ -16,6 +16,13 @@ import java.io.File
 
 @Service(Service.Level.PROJECT)
 class ApiScanService() {
+    private final val SPRING_ANNOTATION_PKG = "org.springframework.web.bind.annotation."
+    private final val REST_CONTROLLER = "RestController"
+    private final val CONTROLLER = "Controller"
+    private final val POST_MAPPING = "PostMapping"
+    private final val GET_MAPPING = "GetMapping"
+    private final val REQUEST_MAPPING = "RequestMapping"
+
     fun doScan(path: String): Collection<ApiBO> {
         val builder = JavaProjectBuilder()
         builder.addSourceTree(File(path))
@@ -38,7 +45,7 @@ class ApiScanService() {
     private fun findAllCtrls(cls: Collection<JavaClass>): Collection<JavaClass> {
         val list = ArrayList<JavaClass>()
         cls.forEach {
-            if (hasSomeAnnotation(it, "RestController") != null || hasSomeAnnotation(it, "Controller") != null) {
+            if (hasSomeAnnotation(it, REST_CONTROLLER) != null || hasSomeAnnotation(it, CONTROLLER) != null) {
                 list.add(it)
             }
         }
@@ -48,8 +55,8 @@ class ApiScanService() {
     private fun initApis(cls: Collection<JavaClass>, map: HashMap<String, JavaClass>): Collection<ApiBO> {
         val list = ArrayList<ApiBO>()
         cls.forEach {
-            val an = hasSomeAnnotation(it, "RequestMapping")
-            val isRest = hasSomeAnnotation(it, "RestController")
+            val an = hasSomeAnnotation(it, REQUEST_MAPPING)
+            val isRest = hasSomeAnnotation(it, REST_CONTROLLER)
             if (an != null) {
                 var url = annotationValueToString(an.getProperty("value"))
                 val methods = it.methods
@@ -73,10 +80,10 @@ class ApiScanService() {
     }
 
     private fun parseHttpUrl(url: String, it: JavaMethod): String {
-        val getMapping = hasSomeMapping(it, "GetMapping")
-        val postMapping = hasSomeMapping(it, "PostMapping")
-        val requestMapping = hasSomeMapping(it, "RequestMapping")
-        var an: JavaAnnotation? = null
+        val getMapping = hasSomeMapping(it, GET_MAPPING)
+        val postMapping = hasSomeMapping(it, POST_MAPPING)
+        val requestMapping = hasSomeMapping(it, REQUEST_MAPPING)
+        val an: JavaAnnotation?
         if (getMapping != null) {
             an = getMapping
         } else if (postMapping != null) {
@@ -103,14 +110,16 @@ class ApiScanService() {
     }
 
     private fun isGetRequestMapping(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, "GetMapping") != null
+        return hasSomeMapping(it, GET_MAPPING) != null
     }
 
     private fun hasSomeMapping(it: JavaMethod, mapping: String): JavaAnnotation? {
+        val imports = it.declaringClass.source.imports
+        val hasSpring = imports.contains(SPRING_ANNOTATION_PKG + "*")
         val annotation =
             it.annotations.filter {
                 val fullName = it.type.fullyQualifiedName
-                ("org.springframework.web.bind.annotation." + mapping).equals(fullName)
+                (SPRING_ANNOTATION_PKG + mapping).equals(fullName)||(mapping.equals(fullName) && hasSpring)
             }
         if (CollectionUtil.isNotEmpty(annotation)) {
             return annotation.get(0)
@@ -119,10 +128,15 @@ class ApiScanService() {
     }
 
     private fun hasSomeAnnotation(it: JavaClass, mapping: String): JavaAnnotation? {
+        val imports = it.source.imports
+        val hasSpring = imports.contains(SPRING_ANNOTATION_PKG + "*")
         val annotation =
             it.annotations.filter {
                 val fullName = it.type.fullyQualifiedName
-                ("org.springframework.web.bind.annotation." + mapping).equals(fullName)
+                (SPRING_ANNOTATION_PKG + mapping).equals(fullName)
+                        || (mapping.equals(fullName) && hasSpring)
+
+
             }
         if (CollectionUtil.isNotEmpty(annotation)) {
             return annotation.get(0)
@@ -131,11 +145,11 @@ class ApiScanService() {
     }
 
     private fun isRequestMapping(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, "RequestMapping") != null
+        return hasSomeMapping(it, REQUEST_MAPPING) != null
     }
 
     private fun isPostRequestMapping(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, "PostMapping") != null
+        return hasSomeMapping(it, POST_MAPPING) != null
     }
 
 
