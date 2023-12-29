@@ -13,7 +13,6 @@ class TopPanel() : JBPanel<JBPanel<*>>() {
     private  var select: ComboBox<String>
     private  var urlInput: JTextField
     private  var sendBtn: JButton
-
     init {
         val layout = FlowLayout()
         layout.alignment = FlowLayout.LEFT

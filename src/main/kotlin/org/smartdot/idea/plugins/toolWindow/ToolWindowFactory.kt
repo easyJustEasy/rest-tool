@@ -8,6 +8,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
+import org.apache.commons.lang3.StringUtils
 import org.smartdot.idea.plugins.bo.RequestBO
 import org.smartdot.idea.plugins.services.ApiScanService
 import org.smartdot.idea.plugins.services.ProjectService
@@ -15,7 +16,8 @@ import org.smartdot.idea.plugins.toolWindow.bottomPanel.BottomPanel
 import org.smartdot.idea.plugins.toolWindow.ctrlPanel.CtrlPanel
 import org.smartdot.idea.plugins.toolWindow.topPanel.TopPanel
 import java.awt.BorderLayout
-import java.awt.Dimension
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
 import javax.swing.JSplitPane
 import javax.swing.border.LineBorder
 
@@ -35,13 +37,12 @@ class ToolWindowFactory : ToolWindowFactory {
     class MyToolWindow(toolWindow: ToolWindow) {
         private val service = toolWindow.project.service<ProjectService>()
         private val apiService = toolWindow.project.service<ApiScanService>()
-       private val dir = toolWindow.project.basePath
-
+        private val dir = toolWindow.project.basePath
         fun getContent() = JBPanel<JBPanel<*>>().apply {
             val ctrlPanel = CtrlPanel()
             val topPanel = TopPanel()
             val bottomPanel = BottomPanel()
-            println("dir is :"+dir)
+            println("dir is :" + dir)
             val doScan = dir?.let { apiService.doScan(it) }
             topPanel.addSendAction {
                 try {
@@ -57,25 +58,32 @@ class ToolWindowFactory : ToolWindowFactory {
                 }
             }
             if (doScan != null) {
-                ctrlPanel.addElement(doScan)
+                ctrlPanel.initApis(doScan)
             }
             ctrlPanel.reload {
                 println("reloading ")
                 ctrlPanel.remove()
                 val ds = dir?.let { it1 -> apiService.doScan(it1) }
                 if (ds != null) {
-                    ctrlPanel.addElement(ds)
+                    ctrlPanel.initApis(ds)
                 }
             }
-            ctrlPanel.select{
-                println(ctrlPanel.getSelectValue())
+            ctrlPanel.select {
                 val select = ctrlPanel.getSelectValue()
-                val url = select.url
-                topPanel.setUrl("http://"+apiService.wrapUrl("localhost:8080/"+url))
-                topPanel.setMethod(select.method)
-                bottomPanel.setBody(select.param)
+                if(select!=null&&StringUtils.isNotBlank(select.url)) {
+                    val url = select.url
+                    val port = ctrlPanel.getPort()
+                    topPanel.setUrl("http://" + apiService.wrapUrl("localhost:" + port + "/" + url))
+                    topPanel.setMethod(select.method)
+                    bottomPanel.setBody(select.param)
+                }
 
             }
+            ctrlPanel.doSearch(object : KeyAdapter() {
+                override fun keyReleased(e: KeyEvent?) {
+                   ctrlPanel.filterResult()
+                }
+            })
             setBorder(LineBorder(JBColor.RED));
             topPanel.border = LineBorder(JBColor.RED)
             bottomPanel.border = LineBorder(JBColor.RED)
@@ -88,7 +96,7 @@ class ToolWindowFactory : ToolWindowFactory {
             bt.add(bottomPanel, BorderLayout.CENTER)
             split.add(bt)
             setLayout(BorderLayout())
-            add(split,BorderLayout.CENTER)
+            add(split, BorderLayout.CENTER)
         }
 
     }
