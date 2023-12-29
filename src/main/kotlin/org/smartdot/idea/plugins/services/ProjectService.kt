@@ -47,7 +47,7 @@ class ProjectService {
         if (StringUtil.isNotEmpty(requestBO.cookie)) {
             cookieJson = JSONObject(requestBO.cookie)
             for (key in cookieJson.keys) {
-                val c = HttpCookie(key,cookieJson.getStr(key))
+                val c = HttpCookie(key, cookieJson.getStr(key))
                 cookies.add(c)
             }
         }
@@ -65,6 +65,7 @@ class ProjectService {
                     .execute()
                     .body()
             }
+
             Bundle.message("methodPostForm") -> {
                 val paramsMap: MutableMap<String, Any> = HashMap()
                 for (key in json.keys) {
@@ -76,6 +77,7 @@ class ProjectService {
                     .cookie(cookies)
                     .form(paramsMap).execute().body()
             }
+
             else -> return HttpUtil.createPost(requestBO.url)
                 .header("Content-Type", ContentType.JSON.toString())
                 .addHeaders(hederMap)
