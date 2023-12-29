@@ -52,29 +52,31 @@ class ProjectService {
             }
         }
 
-        if (Bundle.message("methodGet") == requestBO.method) {
-            val parameters: MutableList<NameValuePair> = ArrayList()
-            for (key in json.keys) {
-                parameters.add(BasicNameValuePair(key, json.getStr(key)))
+        when (requestBO.method) {
+            Bundle.message("methodGet") -> {
+                val parameters: MutableList<NameValuePair> = ArrayList()
+                for (key in json.keys) {
+                    parameters.add(BasicNameValuePair(key, json.getStr(key)))
+                }
+                val queryString = EntityUtils.toString(UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8))
+                return HttpUtil.createGet(requestBO.url + "?" + queryString)
+                    .addHeaders(hederMap)
+                    .cookie(cookies)
+                    .execute()
+                    .body()
             }
-            val queryString = EntityUtils.toString(UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8))
-            return HttpUtil.createGet(requestBO.url + "?" + queryString)
-                .addHeaders(hederMap)
-                .cookie(cookies)
-                .execute()
-                .body()
-        } else if (Bundle.message("methodPostForm") == requestBO.method) {
-            val paramsMap: MutableMap<String, Any> = HashMap()
-            for (key in json.keys) {
-                paramsMap[key] = json[key].toString()
+            Bundle.message("methodPostForm") -> {
+                val paramsMap: MutableMap<String, Any> = HashMap()
+                for (key in json.keys) {
+                    paramsMap[key] = json[key].toString()
+                }
+                return HttpUtil.createPost(requestBO.url)
+                    .header("Content-Type", ContentType.FORM_URLENCODED.toString())
+                    .addHeaders(hederMap)
+                    .cookie(cookies)
+                    .form(paramsMap).execute().body()
             }
-            return HttpUtil.createPost(requestBO.url)
-                .header("Content-Type", ContentType.FORM_URLENCODED.toString())
-                .addHeaders(hederMap)
-                .cookie(cookies)
-                .form(paramsMap).execute().body()
-        } else {
-            return HttpUtil.createPost(requestBO.url)
+            else -> return HttpUtil.createPost(requestBO.url)
                 .header("Content-Type", ContentType.JSON.toString())
                 .addHeaders(hederMap)
                 .cookie(cookies)

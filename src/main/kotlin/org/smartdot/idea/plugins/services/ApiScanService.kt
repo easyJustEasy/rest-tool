@@ -1,27 +1,21 @@
 package org.smartdot.idea.plugins.services
 
 import cn.hutool.core.collection.CollectionUtil
-import cn.hutool.core.math.BitStatusUtil.has
 import cn.hutool.json.JSONObject
 import com.intellij.openapi.components.Service
 import com.thoughtworks.qdox.JavaProjectBuilder
 import com.thoughtworks.qdox.model.JavaAnnotation
 import com.thoughtworks.qdox.model.JavaClass
 import com.thoughtworks.qdox.model.JavaMethod
-import com.thoughtworks.qdox.model.JavaParameter
 import com.thoughtworks.qdox.model.expression.AnnotationValue
 import org.smartdot.idea.plugins.Bundle
 import org.smartdot.idea.plugins.bo.ApiBO
+import org.smartdot.idea.plugins.consts.ProjectConsts
 import java.io.File
 
 @Service(Service.Level.PROJECT)
-class ApiScanService() {
-    private final val SPRING_ANNOTATION_PKG = "org.springframework.web.bind.annotation."
-    private final val REST_CONTROLLER = "RestController"
-    private final val CONTROLLER = "Controller"
-    private final val POST_MAPPING = "PostMapping"
-    private final val GET_MAPPING = "GetMapping"
-    private final val REQUEST_MAPPING = "RequestMapping"
+class ApiScanService{
+
 
     fun doScan(path: String): Collection<ApiBO> {
         val builder = JavaProjectBuilder()
@@ -29,8 +23,7 @@ class ApiScanService() {
         val cls: Collection<JavaClass> = builder.classes
         val map = initMap(cls)
         val ctrls = findAllCtrls(cls)
-        val apis = initApis(ctrls, map)
-        return apis;
+        return initApis(ctrls, map)
     }
 
     private fun initMap(cls: Collection<JavaClass>): HashMap<String, JavaClass> {
@@ -45,7 +38,7 @@ class ApiScanService() {
     private fun findAllCtrls(cls: Collection<JavaClass>): Collection<JavaClass> {
         val list = ArrayList<JavaClass>()
         cls.forEach {
-            if (hasSomeAnnotation(it, REST_CONTROLLER) != null || hasSomeAnnotation(it, CONTROLLER) != null) {
+            if (hasSomeAnnotation(it, ProjectConsts.REST_CONTROLLER) != null || hasSomeAnnotation(it, ProjectConsts.CONTROLLER) != null) {
                 list.add(it)
             }
         }
@@ -54,11 +47,11 @@ class ApiScanService() {
 
     private fun initApis(cls: Collection<JavaClass>, map: HashMap<String, JavaClass>): Collection<ApiBO> {
         val list = ArrayList<ApiBO>()
-        cls.forEach {
-            val an = hasSomeAnnotation(it, REQUEST_MAPPING)
-            val isRest = hasSomeAnnotation(it, REST_CONTROLLER)
+        cls.forEach { it ->
+            val an = hasSomeAnnotation(it, ProjectConsts.REQUEST_MAPPING)
+            val isRest = hasSomeAnnotation(it, ProjectConsts.REST_CONTROLLER)
             if (an != null) {
-                var url = annotationValueToString(an.getProperty("value"))
+                val url = annotationValueToString(an.getProperty("value"))
                 val methods = it.methods
                 if (CollectionUtil.isNotEmpty(methods)) {
                     methods.forEach {
@@ -67,7 +60,7 @@ class ApiScanService() {
                                 ApiBO(
                                     wrapUrl(parseHttpUrl(url, it)),
                                     parseHttpParams(it, map),
-                                    parseHttpMethod(it, isRest, map)
+                                    parseHttpMethod(it, isRest)
                                 )
                             )
                         }
@@ -80,17 +73,9 @@ class ApiScanService() {
     }
 
     private fun parseHttpUrl(url: String, it: JavaMethod): String {
-        val getMapping = hasSomeMapping(it, GET_MAPPING)
-        val postMapping = hasSomeMapping(it, POST_MAPPING)
-        val requestMapping = hasSomeMapping(it, REQUEST_MAPPING)
-        val an: JavaAnnotation?
-        if (getMapping != null) {
-            an = getMapping
-        } else if (postMapping != null) {
-            an = postMapping
-        } else {
-            an = requestMapping
-        }
+        val requestMapping = hasSomeMapping(it, ProjectConsts.REQUEST_MAPPING)
+        val an: JavaAnnotation? = hasSomeMapping(it, ProjectConsts.GET_MAPPING) ?: (hasSomeMapping(it, ProjectConsts.POST_MAPPING)
+            ?: requestMapping)
         return buildString {
             append("/")
             append(url)
@@ -99,57 +84,57 @@ class ApiScanService() {
         }
     }
 
-    private fun parseHttpMethod(it: JavaMethod, body: JavaAnnotation?, map: HashMap<String, JavaClass>): String {
-        if (isGetRequestMapping(it)) {
-            return Bundle.message("methodGet")
+    private fun parseHttpMethod(it: JavaMethod, body: JavaAnnotation?): String {
+        return if (isGetRequestMapping(it)) {
+            Bundle.message("methodGet")
         } else if (isPostRequestMapping(it) && hasPostBody(it, body)) {
-            return Bundle.message("methodPostJson")
+            Bundle.message("methodPostJson")
         } else {
-            return Bundle.message("methodPostForm")
+            Bundle.message("methodPostForm")
         }
     }
 
     private fun isGetRequestMapping(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, GET_MAPPING) != null
+        return hasSomeMapping(it, ProjectConsts.GET_MAPPING) != null
     }
 
     private fun hasSomeMapping(it: JavaMethod, mapping: String): JavaAnnotation? {
         val imports = it.declaringClass.source.imports
-        val hasSpring = imports.contains(SPRING_ANNOTATION_PKG + "*")
+        val hasSpring = imports.contains(ProjectConsts.SPRING_ANNOTATION_PKG + "*")
         val annotation =
             it.annotations.filter {
                 val fullName = it.type.fullyQualifiedName
-                (SPRING_ANNOTATION_PKG + mapping).equals(fullName)||(mapping.equals(fullName) && hasSpring)
+                (ProjectConsts.SPRING_ANNOTATION_PKG + mapping) == fullName ||(mapping == fullName && hasSpring)
             }
         if (CollectionUtil.isNotEmpty(annotation)) {
-            return annotation.get(0)
+            return annotation[0]
         }
         return null
     }
 
     private fun hasSomeAnnotation(it: JavaClass, mapping: String): JavaAnnotation? {
         val imports = it.source.imports
-        val hasSpring = imports.contains(SPRING_ANNOTATION_PKG + "*")
+        val hasSpring = imports.contains(ProjectConsts.SPRING_ANNOTATION_PKG + "*")
         val annotation =
             it.annotations.filter {
                 val fullName = it.type.fullyQualifiedName
-                (SPRING_ANNOTATION_PKG + mapping).equals(fullName)
-                        || (mapping.equals(fullName) && hasSpring)
+                (ProjectConsts.SPRING_ANNOTATION_PKG + mapping) == fullName
+                        || (mapping == fullName && hasSpring)
 
 
             }
         if (CollectionUtil.isNotEmpty(annotation)) {
-            return annotation.get(0)
+            return annotation[0]
         }
         return null
     }
 
     private fun isRequestMapping(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, REQUEST_MAPPING) != null
+        return hasSomeMapping(it, ProjectConsts.REQUEST_MAPPING) != null
     }
 
     private fun isPostRequestMapping(it: JavaMethod): Boolean {
-        return hasSomeMapping(it, POST_MAPPING) != null
+        return hasSomeMapping(it, ProjectConsts.POST_MAPPING) != null
     }
 
 
@@ -165,7 +150,7 @@ class ApiScanService() {
                 "javax.servlet.http.HttpServletResponse"
             ))
         }.forEach {
-            val pv = map.get(it.type.fullyQualifiedName)
+            val pv = map[it.type.fullyQualifiedName]
             if (pv != null) {
                 json.set(it.name, parseObjJson(pv, map))
             } else {
@@ -180,7 +165,7 @@ class ApiScanService() {
         val v = JSONObject()
         val fs = pv.fields
         fs.forEach {
-            val pr = map.get(it.type.fullyQualifiedName)
+            val pr = map[it.type.fullyQualifiedName]
             if (pr != null) {
                 v.set(it.name, parseObjJson(pr, map))
             } else {
@@ -197,11 +182,11 @@ class ApiScanService() {
     private fun annotationValueToString(annotationValue: AnnotationValue?): String {
         return if (annotationValue == null) {
             ""
-        } else if (annotationValue.getParameterValue() is String) {
-            val parameterValue = annotationValue.getParameterValue() as String
+        } else if (annotationValue.parameterValue is String) {
+            val parameterValue = annotationValue.parameterValue as String
             parameterValue.substring(1, parameterValue.length - 1)
         } else {
-            annotationValue.getParameterValue().toString()
+            annotationValue.parameterValue.toString()
         }
     }
 }
