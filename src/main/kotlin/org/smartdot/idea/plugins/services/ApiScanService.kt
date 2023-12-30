@@ -14,7 +14,7 @@ import org.smartdot.idea.plugins.consts.ProjectConsts
 import java.io.File
 
 @Service(Service.Level.PROJECT)
-class ApiScanService{
+class ApiScanService {
 
 
     fun doScan(path: String): Collection<ApiBO> {
@@ -38,7 +38,11 @@ class ApiScanService{
     private fun findAllCtrls(cls: Collection<JavaClass>): Collection<JavaClass> {
         val list = ArrayList<JavaClass>()
         cls.forEach {
-            if (hasSomeAnnotation(it, ProjectConsts.REST_CONTROLLER) != null || hasSomeAnnotation(it, ProjectConsts.CONTROLLER) != null) {
+            if (hasSomeAnnotation(it, ProjectConsts.REST_CONTROLLER) != null || hasSomeAnnotation(
+                    it,
+                    ProjectConsts.CONTROLLER
+                ) != null
+            ) {
                 list.add(it)
             }
         }
@@ -49,21 +53,22 @@ class ApiScanService{
         val list = ArrayList<ApiBO>()
         cls.forEach { it ->
             val an = hasSomeAnnotation(it, ProjectConsts.REQUEST_MAPPING)
-            val isRest = hasSomeAnnotation(it, ProjectConsts.REST_CONTROLLER)
+            var url = "/"
             if (an != null) {
-                val url = annotationValueToString(an.getProperty("value"))
-                val methods = it.methods
-                if (CollectionUtil.isNotEmpty(methods)) {
-                    methods.forEach {
-                        if (isPostRequestMapping(it) || isGetRequestMapping(it) || isRequestMapping(it)) {
-                            list.add(
-                                ApiBO(
-                                    wrapUrl(parseHttpUrl(url, it)),
-                                    parseHttpParams(it, map),
-                                    parseHttpMethod(it, isRest)
-                                )
+                url = annotationValueToString(an.getProperty("value"))
+            }
+            val isRest = hasSomeAnnotation(it, ProjectConsts.REST_CONTROLLER)
+            val methods = it.methods
+            if (CollectionUtil.isNotEmpty(methods)) {
+                methods.forEach {
+                    if (isPostRequestMapping(it) || isGetRequestMapping(it) || isRequestMapping(it)) {
+                        list.add(
+                            ApiBO(
+                                wrapUrl(parseHttpUrl(url, it)),
+                                parseHttpParams(it, map),
+                                parseHttpMethod(it, isRest)
                             )
-                        }
+                        )
                     }
                 }
             }
@@ -74,8 +79,9 @@ class ApiScanService{
 
     private fun parseHttpUrl(url: String, it: JavaMethod): String {
         val requestMapping = hasSomeMapping(it, ProjectConsts.REQUEST_MAPPING)
-        val an: JavaAnnotation? = hasSomeMapping(it, ProjectConsts.GET_MAPPING) ?: (hasSomeMapping(it, ProjectConsts.POST_MAPPING)
-            ?: requestMapping)
+        val an: JavaAnnotation? =
+            hasSomeMapping(it, ProjectConsts.GET_MAPPING) ?: (hasSomeMapping(it, ProjectConsts.POST_MAPPING)
+                ?: requestMapping)
         return buildString {
             append("/")
             append(url)
@@ -104,7 +110,7 @@ class ApiScanService{
         val annotation =
             it.annotations.filter {
                 val fullName = it.type.fullyQualifiedName
-                (ProjectConsts.SPRING_ANNOTATION_PKG + mapping) == fullName ||(mapping == fullName && hasSpring)
+                (ProjectConsts.SPRING_ANNOTATION_PKG + mapping) == fullName || (mapping == fullName && hasSpring)
             }
         if (CollectionUtil.isNotEmpty(annotation)) {
             return annotation[0]
@@ -152,11 +158,13 @@ class ApiScanService{
         }.forEach {
             val pv = map[it.type.fullyQualifiedName]
             if (pv != null) {
-                json.set(it.name, parseObjJson(pv, map))
+                val j = parseObjJson(pv, map);
+                j.keys.forEach{k ->
+                    run { json.set(k, j[k]) }
+                }
             } else {
                 json.set(it.name, it.type.value.toString())
             }
-
         }
         return json
     }
@@ -176,7 +184,12 @@ class ApiScanService{
     }
 
     fun wrapUrl(url: String): String {
-        return url.replace("//", "/")
+        var input = url + ""
+        val ch = "//"
+        while (input.contains(ch)) {
+            input = input.replace(ch, "/")
+        }
+        return input
     }
 
     private fun annotationValueToString(annotationValue: AnnotationValue?): String {
