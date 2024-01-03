@@ -41,9 +41,7 @@ class ToolWindowFactory : ToolWindowFactory {
 
             val split = JSplitPane(JSplitPane.VERTICAL_SPLIT)
             split.setDividerSize(0) // 设置分割线宽度
-            split.setDividerLocation(500) // 设置分割线位置
-
-
+            split.setDividerLocation(480) // 设置分割线位置
             split.add(ctrlPanel)
             val bt = JBPanel<JBPanel<*>>()
             bt.layout = BorderLayout()

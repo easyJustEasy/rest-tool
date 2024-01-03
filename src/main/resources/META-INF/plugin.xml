@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>org.jetbrains.plugins.template</id>
-    <name>CpmsTools</name>
+    <id>org.smartdot.idea.plugins</id>
+    <name>RestTools</name>
     <vendor>JetBrains</vendor>
 
     <depends>com.intellij.modules.platform</depends>

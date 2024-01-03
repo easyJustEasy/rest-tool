@@ -24,10 +24,11 @@ repositories {
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
 //    implementation(libs.annotations)
-    implementation("cn.hutool:hutool-http:5.8.23")
-    implementation("cn.hutool:hutool-json:5.8.23")
+    implementation("cn.hutool:hutool-http:5.8.24")
+    implementation("cn.hutool:hutool-json:5.8.24")
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.thoughtworks.qdox:qdox:2.0.3")
+    implementation("com.github.shalousun:smart-doc:2.7.7")
+
 
 
 }

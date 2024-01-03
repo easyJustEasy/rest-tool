@@ -1,10 +1,10 @@
 package org.smartdot.idea.plugins.toolWindow.ctrlPanel
 
+import cn.hutool.json.JSONObject
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.observable.util.whenKeyReleased
-import com.intellij.ui.ListSpeedSearch
 import com.intellij.ui.components.*
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.StringUtils
 import org.smartdot.idea.plugins.bo.ApiBO
 import org.smartdot.idea.plugins.services.ApiScanService
 import org.smartdot.idea.plugins.toolWindow.bottomPanel.BottomPanel
@@ -26,6 +26,7 @@ class CtrlPanel : JBPanel<JBPanel<*>>() {
     private val search: JBTextField = JBTextField()
     private val allApis: HashSet<ApiBO> = HashSet()
     private var isTipped: Boolean = false
+    private var loading: Boolean = false
     private lateinit var dir: String
     private lateinit var apiService: ApiScanService
     private lateinit var topPanel: TopPanel
@@ -43,7 +44,6 @@ class CtrlPanel : JBPanel<JBPanel<*>>() {
             val label = it?.let { it1 -> JBLabel(it1.url) }
             label!!
         }
-        ListSpeedSearch<ApiBO>(list)
         val panel = JBPanel<JBPanel<*>>()
         panel.setLayout(BorderLayout())
         val toolBar = createToolBar()
@@ -51,7 +51,7 @@ class CtrlPanel : JBPanel<JBPanel<*>>() {
         panel.add(JBScrollPane(list), BorderLayout.CENTER)
         setLayout(BorderLayout())
         add(panel, BorderLayout.CENTER)
-        initApis()
+        initListeners()
 
     }
 
@@ -111,14 +111,20 @@ class CtrlPanel : JBPanel<JBPanel<*>>() {
             defaultListModel.addElement(it)
         }
     }
-
-    private fun initApis() {
-        val doScan = dir.let { apiService.doScan(it) }
-        allApis.addAll(doScan)
-        addElement(doScan)
+private fun initListeners(){
         reload()
         select()
         doSearch()
+}
+    private fun initApis() {
+        if(loading){
+            return
+        }
+        loading = true
+        val doScan = dir.let { apiService.doScan(it) }
+        allApis.addAll(doScan)
+        addElement(doScan)
+        loading = false
     }
 
     private fun remove() {
@@ -141,7 +147,9 @@ class CtrlPanel : JBPanel<JBPanel<*>>() {
                 val port = getPort()
                 topPanel.setUrl("http://" + apiService.wrapUrl("localhost:$port/$url"))
                 topPanel.setMethod(select.method)
-                bottomPanel.setBody(select.param)
+                if(StringUtils.isNotBlank(select.param)){
+                    bottomPanel.setBody(JSONObject(select.param))
+                }
             }
         }
     }

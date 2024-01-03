@@ -8,5 +8,6 @@ internal class ApplicationActivationListener :
     ApplicationActivationListener {
 
     override fun applicationActivated(ideFrame: IdeFrame) {
+        println("action "+ideFrame.project)
     }
 }

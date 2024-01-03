@@ -59,7 +59,7 @@ class TopPanel : JBPanel<JBPanel<*>>() {
             val body = bottomPanel.getBody()
             val header = bottomPanel.getHeaders()
             val cookie = bottomPanel.getCookies()
-            ctrlPanel.updateCache(ApiBO(url, JSONObject(body), urlMethod))
+            ctrlPanel.updateCache(ApiBO(url, body, urlMethod))
             try {
                 val res = projectService.request(RequestBO(urlMethod, url, body, header, cookie))
                 bottomPanel.setResponse(res)
