@@ -1,8 +1,8 @@
 package org.smartdot.idea.plugins.toolWindow.apiPanel
 
-import cn.hutool.json.JSONObject
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.components.service
+import com.intellij.openapi.observable.util.whenFocusLost
 import com.intellij.openapi.observable.util.whenKeyReleased
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.*
@@ -13,15 +13,14 @@ import org.smartdot.idea.plugins.toolWindow.restPanel.RestPanel
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.FlowLayout
-import java.awt.event.*
 import javax.swing.*
+import kotlin.concurrent.schedule
 
 
 class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
     private val defaultListModel = DefaultListModel<ApiBO>()
     private val port = JBTextField()
     private val allApis: HashSet<ApiBO> = HashSet()
-    private var isTipped: Boolean = false
     private var loading: Boolean = false
     private var path: String? = dir
     private var apiService: ApiScanService = project.service<ApiScanService>()
@@ -44,10 +43,10 @@ class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
         }
         list.addListSelectionListener {
             val select = getSelectValue(list)
-            if (select != null && org.apache.commons.lang3.StringUtils.isNotBlank(select.url)) {
+            if (select != null && StringUtils.isNotBlank(select.url)) {
                 val url = select.url
                 val port = getPort()
-                restPanel.updateApi("http://" + apiService.wrapUrl("localhost:$port/$url"),select.method,select.param)
+                restPanel.updateApi("http://" + apiService.wrapUrl("localhost:$port/$url"), select.method, select.param)
             }
         }
         return JBScrollPane(list)
@@ -79,12 +78,18 @@ class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
         search.columns = 50
         search.toolTipText = "搜索"
         search.isVisible = false
-        search.addMouseListener(object : MouseAdapter() {
-            override fun mouseExited(e: MouseEvent?) {
-                searchBtn.isVisible = true
-                search.isVisible = false
+        search.whenFocusLost {
+            val timer = java.util.Timer()
+            timer.schedule(3000) {
+                if(search.isFocusOwner){
+                    timer.cancel()
+                }else{
+                    searchBtn.isVisible = true
+                    search.isVisible = false
+                }
+
             }
-        })
+        }
         search.whenKeyReleased {
             filterResult(search)
         }
@@ -92,23 +97,24 @@ class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
     }
 
     private fun createPort(panel: JBPanel<JBPanel<*>>) {
-        var configBtn = JButton("", AllIcons.Actions.InlayGear)
-
+        val configBtn = JButton("", AllIcons.Actions.InlayGear)
         port.toolTipText = "端口"
         port.isVisible = false
-        port.addMouseListener(object : MouseAdapter() {
-            override fun mouseExited(e: MouseEvent?) {
-                port.isVisible = false
-                configBtn.isVisible = true
+        port.whenFocusLost {
+            val timer = java.util.Timer()
+            timer.schedule(3000) {
+                if(port.isFocusOwner){
+                    timer.cancel()
+                }else{
+                    port.isVisible = false
+                    configBtn.isVisible = true
+                }
+
             }
-        })
-        configBtn.toolTipText = "设置"
+        }
+        configBtn.toolTipText = "修改端口"
         configBtn.preferredSize = Dimension(30, 30)
         configBtn.addActionListener {
-            if (!isTipped) {
-                JOptionPane.showMessageDialog(this, "请输入端口号")
-                isTipped = true
-            }
             port.isVisible = true
             configBtn.isVisible = false
             port.grabFocus()
@@ -123,7 +129,6 @@ class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
         reloadBtn.preferredSize = Dimension(30, 30)
         reloadBtn.toolTipText = "刷新"
         reloadBtn.addActionListener {
-            println("reloading ")
             remove()
             initApis()
         }

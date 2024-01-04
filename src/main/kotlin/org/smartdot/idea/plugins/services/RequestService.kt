@@ -20,13 +20,10 @@ class RequestService {
 
 
     fun request(requestBO: RequestBO): String {
-
         if (StringUtil.isEmpty(requestBO.method)) {
-            JOptionPane.showMessageDialog(null, "method can not be blank")
             return ""
         }
         if (StringUtil.isEmpty(requestBO.url)) {
-            JOptionPane.showMessageDialog(null, "url can not be blank")
             return ""
         }
         var json = JSONObject()

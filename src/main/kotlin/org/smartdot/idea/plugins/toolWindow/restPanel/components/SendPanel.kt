@@ -7,10 +7,8 @@ import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBPanel
 import org.smartdot.idea.plugins.Bundle
 import org.smartdot.idea.plugins.bo.ApiBO
-import org.smartdot.idea.plugins.bo.RequestBO
 import org.smartdot.idea.plugins.services.RequestService
 import org.smartdot.idea.plugins.toolWindow.apiPanel.ApiPanel
-import org.smartdot.idea.plugins.toolWindow.restPanel.components.BottomPanel
 import java.awt.BorderLayout
 import javax.swing.JButton
 import javax.swing.JTextField
@@ -44,12 +42,10 @@ class SendPanel(project: Project, bottomPanel: BottomPanel, apiPanel: ApiPanel?)
         sendBtn.addActionListener {
             val urlMethod = select.selectedItem?.toString() ?: ""
             val url = urlInput.text
-            val body = bottomPanel.getBody()
-            val header = bottomPanel.getHeaders()
-            val cookie = bottomPanel.getCookies()
-            apiPanel?.updateCache(ApiBO(url, body, urlMethod))
+            val requestBO = bottomPanel.getRequestBo(urlMethod, url)
+            apiPanel?.updateCache(ApiBO(url, requestBO.params, urlMethod))
             try {
-                val res = projectService.request(RequestBO(urlMethod, url, body, header, cookie))
+                val res = projectService.request(requestBO)
                 bottomPanel.setResponse(res)
             } catch (e: Exception) {
                 bottomPanel.setResponse(ExceptionUtil.getMessage(e))
