@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets
 import javax.swing.JOptionPane
 
 @Service(Service.Level.PROJECT)
-class ProjectService {
+class RequestService {
 
 
     fun request(requestBO: RequestBO): String {

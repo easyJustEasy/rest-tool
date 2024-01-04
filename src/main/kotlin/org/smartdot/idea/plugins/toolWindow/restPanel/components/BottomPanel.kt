@@ -1,4 +1,4 @@
-package org.smartdot.idea.plugins.toolWindow.bottomPanel
+package org.smartdot.idea.plugins.toolWindow.restPanel.components
 
 import cn.hutool.json.JSONObject
 import cn.hutool.json.JSONUtil
@@ -7,8 +7,9 @@ import com.intellij.ui.EditorTextField
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.tabs.TabInfo
 import com.intellij.ui.tabs.impl.JBTabsImpl
+import com.intellij.util.ui.JBUI
 import org.apache.commons.lang3.StringUtils
-import org.smartdot.idea.plugins.toolWindow.commpont.JsonEditor
+import org.smartdot.idea.plugins.toolWindow.restPanel.components.JsonEditor
 import java.awt.BorderLayout
 
 
@@ -31,11 +32,12 @@ class BottomPanel(project: Project) : JBPanel<JBPanel<*>>() {
 
         responseTxt = addEditor("response",project)
 
-        add(tabs.getComponent(),BorderLayout.CENTER)
+        add(tabs.component,BorderLayout.CENTER)
     }
 
     private fun addEditor(title: String,project:Project): EditorTextField {
         val editor = JsonEditor(project)
+        editor.name = title
         editor.text = ""
         val bodyTab = TabInfo(editor)
         bodyTab.setText(title)
@@ -91,5 +93,11 @@ class BottomPanel(project: Project) : JBPanel<JBPanel<*>>() {
 
     fun setBody(param: JSONObject) {
         bodyTxt.text = param.toStringPretty()
+    }
+
+    fun updateApi(param: String?) {
+        if (param != null) {
+           setBody(JSONObject(param))
+        }
     }
 }

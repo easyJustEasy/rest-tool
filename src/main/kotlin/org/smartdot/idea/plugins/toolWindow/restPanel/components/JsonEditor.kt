@@ -1,4 +1,4 @@
-package org.smartdot.idea.plugins.toolWindow.commpont
+package org.smartdot.idea.plugins.toolWindow.restPanel.components
 
 import com.intellij.ide.highlighter.HtmlFileType
 import com.intellij.ide.highlighter.XmlFileType
@@ -18,7 +18,7 @@ import com.intellij.util.ui.JBUI
 import org.smartdot.idea.plugins.Bundle.message
 import javax.swing.border.Border
 
-class JsonEditor @JvmOverloads constructor(project: Project?, fileType: FileType? = TEXT_FILE_TYPE) :
+class JsonEditor(project: Project, fileType: FileType = TEXT_FILE_TYPE) :
     EditorTextField(null, project, fileType, false, false) {
     fun setText(text: String?, fileType: FileType) {
         super.setFileType(fileType)
@@ -62,11 +62,11 @@ class JsonEditor @JvmOverloads constructor(project: Project?, fileType: FileType
         }
     }
 
-    override fun setBorder(border: Border) {
+    override fun setBorder(border: Border?) {
         super.setBorder(JBUI.Borders.empty())
     }
 
-    fun createDocument(text: String?, fileType: FileType): Document? {
+    private fun createDocument(text: String?, fileType: FileType): Document? {
         val factory = PsiFileFactory.getInstance(project)
         val stamp = LocalTimeCounter.currentTime()
         val psiFile = factory.createFileFromText(
