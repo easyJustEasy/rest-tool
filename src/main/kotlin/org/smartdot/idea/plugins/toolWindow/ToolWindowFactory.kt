@@ -4,6 +4,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.ui.JBSplitter
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
 import org.smartdot.idea.plugins.services.ApiScanService
@@ -20,6 +21,7 @@ class ToolWindowFactory : ToolWindowFactory {
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val myToolWindow = MyToolWindow(toolWindow)
+
         val content = ContentFactory.getInstance().createContent(myToolWindow.getContent(), null, false)
         toolWindow.contentManager.addContent(content)
 
@@ -31,23 +33,23 @@ class ToolWindowFactory : ToolWindowFactory {
         private val service = toolWindow.project.service<ProjectService>()
         private val apiService = toolWindow.project.service<ApiScanService>()
         private val dir = toolWindow.project.basePath
+        private val project = toolWindow.project
         fun getContent() = JBPanel<JBPanel<*>>().apply {
+
             val ctrlPanel = CtrlPanel()
-            val bottomPanel = BottomPanel()
+            val bottomPanel = BottomPanel(project)
             val topPanel = TopPanel()
             topPanel.init(bottomPanel, service)
-            ctrlPanel.init(topPanel,bottomPanel,dir,apiService)
+            ctrlPanel.init(topPanel, bottomPanel, dir, apiService)
             topPanel.setCtrlPanel(ctrlPanel)
 
-            val split = JSplitPane(JSplitPane.VERTICAL_SPLIT)
-            split.setDividerSize(0) // 设置分割线宽度
-            split.setDividerLocation(480) // 设置分割线位置
-            split.add(ctrlPanel)
+            val split = JBSplitter(true, "", 0.5F)
+            split.firstComponent = ctrlPanel
             val bt = JBPanel<JBPanel<*>>()
             bt.layout = BorderLayout()
             bt.add(topPanel, BorderLayout.NORTH)
             bt.add(bottomPanel, BorderLayout.CENTER)
-            split.add(bt)
+            split.secondComponent = bt
             setLayout(BorderLayout())
             add(split, BorderLayout.CENTER)
         }

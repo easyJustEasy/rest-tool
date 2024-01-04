@@ -10,6 +10,7 @@ import org.smartdot.idea.plugins.bo.RequestBO
 import org.smartdot.idea.plugins.services.ProjectService
 import org.smartdot.idea.plugins.toolWindow.bottomPanel.BottomPanel
 import org.smartdot.idea.plugins.toolWindow.ctrlPanel.CtrlPanel
+import java.awt.BorderLayout
 import java.awt.FlowLayout
 import javax.swing.JButton
 import javax.swing.JTextField
@@ -25,19 +26,18 @@ class TopPanel : JBPanel<JBPanel<*>>() {
     fun init(bp: BottomPanel, service: ProjectService) {
         bottomPanel = bp
         projectService = service
-        val layout = FlowLayout()
-        layout.alignment = FlowLayout.LEFT
+        val layout = BorderLayout(0,0)
         setLayout(layout)
         ComboBox<String>().also { select = it }
         select.addItem(Bundle.message("methodGet"))
         select.addItem(Bundle.message("methodPostForm"))
         select.addItem(Bundle.message("methodPostJson"))
-        add(select)
-        urlInput = JTextField(52)
+        add(select,BorderLayout.WEST)
+        urlInput = JTextField(45)
         add(urlInput)
         sendBtn = JButton(Bundle.message("sendBtn"))
         addSendAction()
-        add(sendBtn)
+        add(sendBtn,BorderLayout.EAST)
     }
 
     private fun getUrl(): String {

@@ -2,69 +2,45 @@ package org.smartdot.idea.plugins.toolWindow.bottomPanel
 
 import cn.hutool.json.JSONObject
 import cn.hutool.json.JSONUtil
+import com.intellij.openapi.project.Project
+import com.intellij.ui.EditorTextField
 import com.intellij.ui.components.JBPanel
-import com.intellij.ui.components.JBScrollPane
-import com.intellij.ui.components.JBTabbedPane
+import com.intellij.ui.tabs.TabInfo
+import com.intellij.ui.tabs.impl.JBTabsImpl
 import org.apache.commons.lang3.StringUtils
-import org.smartdot.idea.plugins.consts.ProjectConsts
-import java.awt.Dimension
-import java.awt.FlowLayout
-import javax.swing.JTextArea
+import org.smartdot.idea.plugins.toolWindow.commpont.JsonEditor
+import java.awt.BorderLayout
 
 
-class BottomPanel : JBPanel<JBPanel<*>>() {
-    private var bodyTxt: JTextArea
-    private var responseTxt: JTextArea
-    private var cookieTxt: JTextArea
-    private var headersTxt: JTextArea
-    private var bottomPanel: JBTabbedPane = JBTabbedPane()
+class BottomPanel(project: Project) : JBPanel<JBPanel<*>>() {
+    private var bodyTxt: EditorTextField
+    private var responseTxt: EditorTextField
+    private var cookieTxt: EditorTextField
+    private var headersTxt: EditorTextField
+    private var tabs: JBTabsImpl
 
     init {
-        val layout = FlowLayout()
-        layout.alignment = FlowLayout.LEFT
-        setLayout(layout)
-        bodyTxt = JTextArea()
-        bodyTxt.setLineWrap(true)
-        bodyTxt.setWrapStyleWord(true)
-        val bodyPanel = JBScrollPane(bodyTxt)
-        bodyTxt.text = ""
-        setPanel(bodyPanel)
-        bottomPanel.addTab("body", bodyPanel)
+        layout = BorderLayout(0,0)
+        tabs = JBTabsImpl(project)
 
+        bodyTxt = addEditor("body",project)
 
-        headersTxt = JTextArea()
-        headersTxt.setLineWrap(true)
-        headersTxt.setWrapStyleWord(true)
-        val headerPanel = JBScrollPane(headersTxt)
-        headersTxt.text = ""
-        setPanel(headerPanel)
-        bottomPanel.addTab("header", headerPanel)
+        headersTxt = addEditor("header",project)
 
-        cookieTxt = JTextArea()
-        cookieTxt.setLineWrap(true)
-        cookieTxt.setWrapStyleWord(true)
-        val cookiePanel = JBScrollPane(cookieTxt)
-        cookieTxt.text = ""
-        setPanel(cookiePanel)
-        bottomPanel.addTab("cookie", cookiePanel)
+        cookieTxt = addEditor("cookie",project)
 
-        responseTxt = JTextArea()
-        responseTxt.setLineWrap(true)
-        responseTxt.setWrapStyleWord(true)
-        val responsePanel = JBScrollPane(responseTxt)
-        responseTxt.text = ""
-        setPanel(responsePanel)
-        bottomPanel.addTab("response", responsePanel)
+        responseTxt = addEditor("response",project)
 
-
-
-        add(bottomPanel)
+        add(tabs.getComponent(),BorderLayout.CENTER)
     }
 
-    private fun setPanel(panel: JBScrollPane) {
-        panel.preferredSize = Dimension(ProjectConsts.w, ProjectConsts.h)
-        panel.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
-        panel.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED)
+    private fun addEditor(title: String,project:Project): EditorTextField {
+        val editor = JsonEditor(project)
+        editor.text = ""
+        val bodyTab = TabInfo(editor)
+        bodyTab.setText(title)
+        tabs.addTab(bodyTab)
+        return editor
     }
 
     fun getBody(): String {
@@ -103,10 +79,10 @@ class BottomPanel : JBPanel<JBPanel<*>>() {
 
     fun setResponse(txt: String) {
         responseTxt.text = formatJson(txt)
-        bottomPanel.setSelectedComponent(bottomPanel.getComponentAt(3))
+        tabs.select(tabs.getTabAt(3),true)
     }
 
-    private fun formatJson(txt: String): String? {
+    private fun formatJson(txt: String): String {
         if (JSONUtil.isTypeJSON(txt)) {
             return JSONUtil.toJsonPrettyStr(txt)
         }
