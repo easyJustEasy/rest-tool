@@ -3,7 +3,12 @@
 # rest-tool ChangeLog
 
 ## [Unreleased]
+## [0.0.4]
 
+### Changed
+
+- fixed some bugs
+- 
 ## [0.0.3]
 
 ### Changed

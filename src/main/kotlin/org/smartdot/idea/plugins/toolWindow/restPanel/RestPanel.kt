@@ -33,4 +33,8 @@ class RestPanel(project: Project, private var apiPanel: ApiPanel?) : JBPanel<JBP
         bottomPanel.updateApi(param)
 
     }
+
+    fun reportError(message: String?) {
+        bottomPanel.reportError(message)
+    }
 }

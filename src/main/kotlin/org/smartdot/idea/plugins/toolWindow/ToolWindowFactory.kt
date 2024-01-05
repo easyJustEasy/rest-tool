@@ -25,10 +25,9 @@ class ToolWindowFactory : ToolWindowFactory {
     override fun shouldBeAvailable(project: Project) = true
 
     class MyToolWindow(toolWindow: ToolWindow) {
-        private val dir = toolWindow.project.basePath
         private val project = toolWindow.project
         fun getContent() = JBPanel<JBPanel<*>>().apply {
-            val apiPanel = ApiPanel(project,dir)
+            val apiPanel = ApiPanel(project)
             val restPanel = RestPanel(project,apiPanel)
             apiPanel.setRestPanel(restPanel)
             val split = JBSplitter(true, "", 0.5F)

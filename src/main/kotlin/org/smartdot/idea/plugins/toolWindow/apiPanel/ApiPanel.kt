@@ -1,5 +1,6 @@
 package org.smartdot.idea.plugins.toolWindow.apiPanel
 
+import cn.hutool.core.exceptions.ExceptionUtil
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.components.service
 import com.intellij.openapi.observable.util.whenFocusLost
@@ -17,12 +18,12 @@ import javax.swing.*
 import kotlin.concurrent.schedule
 
 
-class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
+class ApiPanel(project: Project) : JBPanel<JBPanel<*>>() {
     private val defaultListModel = DefaultListModel<ApiBO>()
     private val port = JBTextField()
     private val allApis: HashSet<ApiBO> = HashSet()
     private var loading: Boolean = false
-    private var path: String? = dir
+    private var path: String = project.basePath.toString()
     private var apiService: ApiScanService = project.service<ApiScanService>()
     private lateinit var restPanel: RestPanel
 
@@ -149,10 +150,13 @@ class ApiPanel(project: Project, dir: String?) : JBPanel<JBPanel<*>>() {
         }
         if (StringUtils.isNotBlank(path)) {
             loading = true
-            val doScan = path?.let { apiService.doScan(it) }
-            if (doScan != null) {
+            try {
+                val doScan = path.let { apiService.doScan(it) }
                 allApis.addAll(doScan)
                 addElement(doScan)
+            }catch (e:Exception){
+                println(e.stackTraceToString())
+                restPanel.reportError(ExceptionUtil.getMessage(e))
             }
             loading = false
         }

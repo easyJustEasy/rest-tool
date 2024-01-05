@@ -3,15 +3,16 @@ package org.smartdot.idea.plugins.services
 import cn.hutool.json.JSONObject
 import com.google.common.collect.Lists
 import com.intellij.openapi.components.Service
-import com.power.doc.builder.ApiDataBuilder
-import com.power.doc.model.ApiConfig
-import com.power.doc.model.ApiDoc
-import com.power.doc.model.ApiMethodDoc
-import com.power.doc.model.SourceCodePath
+import com.ly.doc.builder.ApiDataBuilder
+import com.ly.doc.model.ApiConfig
+import com.ly.doc.model.ApiDoc
+import com.ly.doc.model.ApiMethodDoc
+import com.ly.doc.model.SourceCodePath
 import org.apache.commons.lang3.StringUtils
 import org.smartdot.idea.plugins.Bundle
 import org.smartdot.idea.plugins.bo.ApiBO
 import org.smartdot.idea.plugins.consts.ProjectConsts
+import java.io.File
 
 @Service(Service.Level.PROJECT)
 class ApiScanService {
@@ -19,10 +20,52 @@ class ApiScanService {
 
     fun doScan(path: String): Collection<ApiBO> {
         val config = ApiConfig()
-        val paths = Lists.newArrayList(SourceCodePath.builder().setPath(path))
-        config.sourceCodePaths = paths
+        config.sourceCodePaths = initPaths(path)
+        config.codePath=joinSrcPath("")
+        config.baseDir = path
         val api = ApiDataBuilder.getApiData(config)
         return initApis(api.apiDocList)
+    }
+
+    private fun initPaths(path: String): MutableList<SourceCodePath>? {
+        val file = File(path)
+        if (!file.exists() || file.isFile) {
+            return Lists.newArrayList()
+        }
+        val paths: MutableList<SourceCodePath> = Lists.newArrayList()
+        //判断是否有src目录
+        val src = containsSrc(path)
+        if (src) {
+            paths.add(SourceCodePath.builder().setPath(joinSrcPath(path)))
+        }
+        forPaths(file, paths)
+        return paths
+    }
+
+    private fun forPaths(file: File, paths: MutableList<SourceCodePath>) {
+        file.listFiles()?.forEach {
+            if (containsSrc(it.absolutePath)) {
+                paths.add(SourceCodePath.builder().setPath(joinSrcPath(it.absolutePath)))
+            } else {
+                if (it.isDirectory) {
+                    forPaths(it, paths)
+                }
+            }
+        }
+    }
+
+    private fun joinSrcPath(path: String): String {
+        return path + File.separator + "main" + File.separator + "java"
+
+    }
+
+    private fun containsSrc(path: String): Boolean {
+        val file = File(path)
+        if (!file.exists() || file.isFile) {
+            return false
+        }
+        val src = File(joinSrcPath(path))
+        return src.exists() && src.isDirectory
     }
 
     private fun initApis(cls: List<ApiDoc>): ArrayList<ApiBO> {

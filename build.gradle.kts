@@ -27,7 +27,7 @@ dependencies {
     implementation("cn.hutool:hutool-http:5.8.24")
     implementation("cn.hutool:hutool-json:5.8.24")
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.github.shalousun:smart-doc:2.7.7")
+    implementation("com.ly.smart-doc:smart-doc:3.0.1")
 
 
 

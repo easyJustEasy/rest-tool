@@ -3,9 +3,6 @@
     <id>org.smartdot.idea.plugins</id>
     <name>RestTools</name>
     <vendor email="zhusiyuanhao@163.com" url="">siyuanzhu</vendor>
-
-    <idea-version since-build="201.0"/>
-
     <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>

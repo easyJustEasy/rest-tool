@@ -97,4 +97,9 @@ class BottomPanel(project: Project) : JBPanel<JBPanel<*>>() {
         val cookie = getCookies()
         return RequestBO(method, url, body, header, cookie)
     }
+
+    fun reportError(message: String?) {
+        responseTxt.setText(message, JsonEditor.TEXT_FILE_TYPE)
+        tabs.select(tabs.getTabAt(3), true)
+    }
 }
