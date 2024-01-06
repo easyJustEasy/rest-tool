@@ -3,11 +3,11 @@ package org.smartdot.idea.plugins.services
 import cn.hutool.json.JSONObject
 import com.google.common.collect.Lists
 import com.intellij.openapi.components.Service
-import com.ly.doc.builder.ApiDataBuilder
-import com.ly.doc.model.ApiConfig
-import com.ly.doc.model.ApiDoc
-import com.ly.doc.model.ApiMethodDoc
-import com.ly.doc.model.SourceCodePath
+import com.easy.doc.builder.ApiDataBuilder
+import com.easy.doc.model.ApiConfig
+import com.easy.doc.model.ApiDoc
+import com.easy.doc.model.ApiMethodDoc
+import com.easy.doc.model.SourceCodePath
 import org.apache.commons.lang3.StringUtils
 import org.smartdot.idea.plugins.Bundle
 import org.smartdot.idea.plugins.bo.ApiBO
