@@ -3,12 +3,14 @@
 # rest-tool ChangeLog
 
 ## [Unreleased]
+
 ## [0.0.4]
 
 ### Changed
 
 - fixed some bugs
-- 
+-
+
 ## [0.0.3]
 
 ### Changed
@@ -33,7 +35,8 @@
 - 支持post-json、post-form、get请求
 - 记住请求过的接口参数
 
-[Unreleased]: http://git.2u1.cn/easy-tools/rest-tool.git/compare/v0.0.3...HEAD
+[Unreleased]: http://git.2u1.cn/easy-tools/rest-tool.git/compare/v0.0.4...HEAD
+[0.0.4]: http://git.2u1.cn/easy-tools/rest-tool.git/compare/v0.0.3...v0.0.4
 [0.0.3]: http://git.2u1.cn/easy-tools/rest-tool.git/compare/v0.0.1...v0.0.3
 [0.0.2]: http://git.2u1.cn/easy-tools/rest-tool.git/compare/v0.0.1...v0.0.2
 [0.0.1]: http://git.2u1.cn/easy-tools/rest-tool.git/commits/v0.0.1
