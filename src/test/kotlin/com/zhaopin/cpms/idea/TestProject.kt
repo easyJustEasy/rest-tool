@@ -19,7 +19,7 @@ class TestProject {
     }
     @Test
     fun projectBuilder() {
-        val path = "E:\\work\\cpms\\cpms-task-todo"
+        val path = "E:\\work\\"
         val builder = JavaProjectBuilder()
         val scanner = com.thoughtworks.qdox.directorywalker.DirectoryScanner(File(path))
         scanner.addFilter(SuffixFilter(".java"))
