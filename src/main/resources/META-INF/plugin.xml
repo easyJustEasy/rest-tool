@@ -1,0 +1,32 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin require-restart="true">
+    <id>org.smartdot.idea.plugins</id>
+    <name>RestTools</name>
+    <vendor email="zhusiyuanhao@163.com" url="">siyuanzhu</vendor>
+    <depends>com.intellij.modules.platform</depends>
+
+    <resource-bundle>messages.MyBundle</resource-bundle>
+    <description><![CDATA[
+        <a href="https://github.com/easyJustEasy/rest-tool.git">git</a>
+
+        <ul>
+            <li>
+                <b>一个类似POSTMAN 工具</b>
+                <ol>
+                    <li>可扫描SpringMvc、SpringBoot项目中接口</li>
+                    <li>支持POST-JSON、POST-FORM、GET请求</li>
+                    <li>自动生成请求参数样例</li>
+                    <li>自动保留参数修改结果</li>
+                    <li>可自定义端口号</li>
+                </ol>
+            </li>
+        </ul>
+        ]]></description>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow factoryClass="org.smartdot.idea.plugins.toolWindow.ToolWindowFactory" id="RestTool" />
+    </extensions>
+
+    <applicationListeners>
+        <listener class="org.smartdot.idea.plugins.listeners.ApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+    </applicationListeners>
+</idea-plugin>
